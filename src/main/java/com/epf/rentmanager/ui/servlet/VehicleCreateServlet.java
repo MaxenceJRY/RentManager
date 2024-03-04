@@ -1,9 +1,13 @@
 package com.epf.rentmanager.ui.servlet;
 
+import com.epf.rentmanager.configuration.AppConfiguration;
 import com.epf.rentmanager.exception.DaoException;
 import com.epf.rentmanager.exception.ServiceException;
 import com.epf.rentmanager.model.Vehicle;
+import com.epf.rentmanager.service.ReservationService;
 import com.epf.rentmanager.service.VehicleService;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -22,6 +26,10 @@ public class VehicleCreateServlet extends HttpServlet {
 
     protected void doPost(HttpServletRequest request, HttpServletResponse
             response) throws ServletException, IOException {
+        ApplicationContext context = new AnnotationConfigApplicationContext(AppConfiguration.class);
+        VehicleService vehicleService;
+        vehicleService = context.getBean(VehicleService.class);
+
         String constructeur = request.getParameter("manufacturer");
         String modele = request.getParameter("modele");
         String nb_places_str = request.getParameter("seats");
@@ -31,7 +39,6 @@ public class VehicleCreateServlet extends HttpServlet {
         } else {
             throw new ServletException("Missing parameter: nb_places " + constructeur + " " + modele);
         }
-        VehicleService vehicleService = VehicleService.getInstance();
         Vehicle vehicle = new Vehicle(0, constructeur, modele, nb_places);
         try {
             vehicleService.create(vehicle);
