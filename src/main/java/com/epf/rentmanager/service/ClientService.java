@@ -45,9 +45,9 @@ public class ClientService {
 		}
 	}
 
-	public void delete(int number) throws ServiceException {
+	public long delete(int number) throws ServiceException {
 		try {
-			clientDao.delete(findById(number));
+			return clientDao.delete(findById(number));
 		} catch (DaoException e) {
 			throw new ServiceException(e.getMessage());
 		}
