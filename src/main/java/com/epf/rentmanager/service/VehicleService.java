@@ -2,6 +2,7 @@ package com.epf.rentmanager.service;
 
 import java.util.List;
 
+import com.epf.rentmanager.dao.ClientDao;
 import com.epf.rentmanager.exception.DaoException;
 import com.epf.rentmanager.exception.ServiceException;
 import com.epf.rentmanager.model.Vehicle;
@@ -11,7 +12,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class VehicleService {
 
-	private VehicleDao vehicleDao;
+    private VehicleDao vehicleDao;
 	
 	private VehicleService(VehicleDao vehicleDao) {
 		this.vehicleDao = vehicleDao;

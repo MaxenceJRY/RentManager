@@ -97,5 +97,13 @@ public class ClientDao {
 		}
 
 	}
+
+	public int count () throws DaoException {
+		try {
+			return this.findAll().size();
+		} catch (DaoException e) {
+			throw new DaoException("Erreur lors du comptage des clients: " + e.getMessage());
+		}
+	}
 }
 

@@ -1,13 +1,10 @@
 package com.epf.rentmanager.ui.servlet;
 
-import com.epf.rentmanager.configuration.AppConfiguration;
+import com.epf.rentmanager.exception.DaoException;
 import com.epf.rentmanager.exception.ServiceException;
-import com.epf.rentmanager.model.Vehicle;
 import com.epf.rentmanager.service.ReservationService;
 import com.epf.rentmanager.service.VehicleService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 import javax.servlet.ServletException;
@@ -16,15 +13,14 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.List;
 
-@WebServlet("/cars/list")
-public class VehicleListServlet extends HttpServlet {
+@WebServlet("/rents/delete/*")
+public class ReservationDeleteServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
+
     @Autowired
-    private VehicleService vehicleService;
+    private ReservationService reservationService;
+
     @Override
     public void init() throws ServletException {
         super.init();
@@ -32,14 +28,16 @@ public class VehicleListServlet extends HttpServlet {
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        List<Vehicle> vehicles = new ArrayList<>();
-
+        String reservationIDstr = request.getPathInfo().substring(1);
+        int reservationID = Integer.parseInt(reservationIDstr);
+        System.out.println(reservationID);
         try {
-            vehicles = vehicleService.findAll();
+            reservationService.delete(reservationID);
         } catch (ServiceException e) {
-            throw new ServletException(e.getMessage());
+            throw new ServletException(e);
         }
-        request.setAttribute("vehicles", vehicles);
-        this.getServletContext().getRequestDispatcher("/WEB-INF/views/vehicles/list.jsp").forward(request, response);
+        response.sendRedirect(request.getContextPath() + "/rents/list");
     }
+
+
 }

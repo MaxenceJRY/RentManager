@@ -137,4 +137,11 @@ public class ReservationDao {
 			throw new DaoException("Erreur lors de la récupération des réservations: " + e.getMessage());
 		}
 	}
+	public int count () throws DaoException {
+		try {
+			return this.findAll().size();
+		} catch (DaoException e) {
+			throw new DaoException("Erreur lors du comptage des réservations: " + e.getMessage());
+		}
+	}
 }

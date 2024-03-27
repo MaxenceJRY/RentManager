@@ -36,7 +36,7 @@ public class VehicleCreateServlet extends HttpServlet {
 
     protected void doPost(HttpServletRequest request, HttpServletResponse
             response) throws ServletException, IOException {
-        // VehicleService vehicleService;
+
         String constructeur = request.getParameter("manufacturer");
         String modele = request.getParameter("modele");
         String nb_places_str = request.getParameter("seats");
