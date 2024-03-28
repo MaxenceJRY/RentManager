@@ -54,6 +54,11 @@
                                     <div class="col-sm-10">
                                         <input type="date" class="form-control" id="birth_date" name="birth_date" placeholder="Date de naissance">
                                     </div>
+                                    <div class="col-sm-10">
+                                        <c:if test="${not empty requestScope.Error}">
+                                                <p style="color: red;"><c:out value="${requestScope.Error}" /></p>
+                                        </c:if>
+                                    </div>
                                 </div>
                             </div>
                             <!-- /.box-body -->

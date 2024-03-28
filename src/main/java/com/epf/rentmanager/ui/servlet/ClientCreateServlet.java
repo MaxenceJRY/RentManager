@@ -1,5 +1,6 @@
 package com.epf.rentmanager.ui.servlet;
 
+import com.epf.rentmanager.exception.ServiceException;
 import com.epf.rentmanager.model.Client;
 import com.epf.rentmanager.service.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,12 +37,35 @@ public class ClientCreateServlet extends HttpServlet {
         String email = request.getParameter("email");
         LocalDate date = LocalDate.parse(request.getParameter("birth_date"));
         Client client = new Client(0, nom, prenom, email, date);
-        try {
-            clientService.create(client);
-        } catch (Exception e) {
-            throw new ServletException(e);
+        boolean possible = clientService.eighteen(client);
+        if (possible) {
+            try {
+                possible = clientService.emailExists(client);
+            } catch (ServiceException e) {
+                throw new ServletException(e);
+            }
+            if (!possible) {
+                request.setAttribute("Error", "L'email est déjà utilisé.");
+                doGet(request, response);
+                return;
+            }
+            possible = clientService.lastFirstName_lenght(client);
+            if (!possible) {
+                request.setAttribute("Error", "Le nom et le prénom doivent contenir au moins 3 caractères.");
+                doGet(request, response);
+                return;
+            }
+            try {
+                clientService.create(client);
+            } catch (ServiceException e) {
+                throw new ServletException(e);
+            }
+            response.sendRedirect(request.getContextPath() + "/users/list");
+        } else {
+            request.setAttribute("Error", "Le client doit être majeur pour être enregistré.");
+            doGet(request, response);
         }
-        response.sendRedirect(request.getContextPath() + "/users/list");
+
     }
 
 }

@@ -62,13 +62,39 @@ public class ReservationCreateServlet extends HttpServlet {
         LocalDate begin = LocalDate.parse(request.getParameter("begin"));
         LocalDate end = LocalDate.parse(request.getParameter("end"));
         Reservation reservation = new Reservation(-1, Long.parseLong(client), Long.parseLong(car), begin, end);
+        boolean possible;
         try {
-            reservationService.create(reservation);
+            possible = reservationService.isVehicleAvailable(reservation);
         } catch (ServiceException e) {
-            throw new ServletException(e);
+            throw new RuntimeException(e);
         }
-        System.out.println(request);
+        if (possible){
+            possible = reservationService.sevenDaysMax(reservation);
+            if (!possible) {
+                request.setAttribute("Error", "La réservation ne peut pas dépasser 7 jours.");
+                doGet(request, response);
+                return;
+            }
+            try {
+                possible = reservationService.pause(reservation);
+            } catch (ServiceException e) {
+                throw new ServletException(e);
+            }
+            if (!possible) {
+                request.setAttribute("Error", "La voiture a besoin de faire une pause");
+                doGet(request, response);
+                return;
+            }
+            try {
+                reservationService.create(reservation);
+            } catch (ServiceException e) {
+                throw new ServletException(e);
+            }
+            response.sendRedirect(request.getContextPath() + "/rents/list");
+        }else {
+            request.setAttribute("Error", "Le véhicule n'est pas disponible.");
+            doGet(request, response);
+        }
 
-        response.sendRedirect(request.getContextPath() + "/rents/list");
     }
 }

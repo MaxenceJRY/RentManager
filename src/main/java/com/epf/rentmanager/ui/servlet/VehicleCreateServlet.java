@@ -47,6 +47,12 @@ public class VehicleCreateServlet extends HttpServlet {
             throw new ServletException("Missing parameter: nb_places " + constructeur + " " + modele);
         }
         Vehicle vehicle = new Vehicle(0, constructeur, modele, nb_places);
+        boolean possible = vehicleService.valide(vehicle);
+        if (!possible){
+            request.setAttribute("Error", "Les critères de la voiture ne sont pas correctes ...");
+            doGet(request, response);
+            return;
+        }
         try {
             vehicleService.create(vehicle);
         } catch (ServiceException | DaoException e) {

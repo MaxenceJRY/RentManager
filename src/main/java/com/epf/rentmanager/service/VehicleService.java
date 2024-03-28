@@ -5,14 +5,18 @@ import java.util.List;
 import com.epf.rentmanager.dao.ClientDao;
 import com.epf.rentmanager.exception.DaoException;
 import com.epf.rentmanager.exception.ServiceException;
+import com.epf.rentmanager.model.Reservation;
 import com.epf.rentmanager.model.Vehicle;
 import com.epf.rentmanager.dao.VehicleDao;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class VehicleService {
 
-    private VehicleDao vehicleDao;
+	@Autowired
+	private ReservationService reservationService;
+    private final VehicleDao vehicleDao;
 	
 	private VehicleService(VehicleDao vehicleDao) {
 		this.vehicleDao = vehicleDao;
@@ -45,6 +49,8 @@ public class VehicleService {
 	}
 	public void delete(int number) throws DaoException, ServiceException {
 		try {
+			List<Reservation> reservations = reservationService.findResaByVehicleId(number);
+			for (Reservation r : reservations) reservationService.delete(r.id());
 			vehicleDao.delete(findById(number));
 		} catch (DaoException e) {
 			throw new ServiceException(e.getMessage());
@@ -58,4 +64,12 @@ public class VehicleService {
 			throw new ServiceException(e.getMessage());
 		}
 	}
+
+	public boolean valide (Vehicle vehicle) {
+		if (vehicle.modele() == "" || vehicle.modele() == null)
+			return false;
+		if (vehicle.constructeur() == "" || vehicle.constructeur() == null)
+			return false;
+		return vehicle.nb_places() >= 2 && vehicle.nb_places() <= 9;
+    }
 }

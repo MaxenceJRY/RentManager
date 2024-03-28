@@ -6,6 +6,8 @@ import com.epf.rentmanager.exception.ServiceException;
 import com.epf.rentmanager.model.Reservation;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
@@ -65,4 +67,49 @@ public class ReservationService {
             throw new ServiceException(e.getMessage());
         }
     }
+
+    public boolean isVehicleAvailable(Reservation reservation) throws ServiceException {
+        List<Reservation> reservations = this.findResaByVehicleId(reservation.vehicle_id());
+        for (Reservation r : reservations) {
+            if (r.debut().isBefore(reservation.debut()) && r.fin().isAfter(reservation.debut())) {
+                return false;
+            }
+            if (r.debut().isBefore(reservation.fin()) && r.fin().isAfter(reservation.fin())) {
+                return false;
+            }
+            if (r.debut().isAfter(reservation.debut()) && r.fin().isBefore(reservation.fin())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean sevenDaysMax (Reservation reservation) {
+        return ChronoUnit.DAYS.between(reservation.debut(), reservation.fin()) <= 7;
+    }
+
+    public boolean pause(Reservation reservation) throws ServiceException {
+        List<Reservation> reservations = this.findResaByVehicleId(reservation.vehicle_id());
+        reservations.add(reservation);
+        int jourDeSuite = 0;
+        for (int i = 0; i < reservations.size() - 1; i++) {
+            Reservation current = reservations.get(i);
+            Reservation next = reservations.get(i + 1);
+            if (i==0)
+                jourDeSuite += (int) ChronoUnit.DAYS.between(current.debut(), current.fin());
+            long diffInDays = ChronoUnit.DAYS.between(current.fin(), next.debut());
+            if (diffInDays == 1) {
+                jourDeSuite += (int) ChronoUnit.DAYS.between(next.debut(), next.fin()) + 1;
+                System.out.println(jourDeSuite);
+                if (jourDeSuite > 30) {
+                    return false;
+                }
+            } else {
+                jourDeSuite = 1;
+            }
+        }
+        return true;
+    }
+
+
 }
